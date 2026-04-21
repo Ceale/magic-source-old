@@ -9,12 +9,14 @@ import { tryCatch } from "@/util/tryCatch"
 import { config } from "@/config"
 import { sourceList } from "@/service/source/manager"
 import { logger } from "@/service/logger"
-import { UrlUtil } from "@ceale/util"
+import { uri } from "@ceale/util"
+import type { LX } from "lx-source-type"
+import { getTime, setTime } from "@/service/source/meta"
 
 // 限速，同一首歌，1小时内，请求失败不能超过2次，超出直接失败
 
 export default eventHandler(async (event) => {
-    const body = await readBody(event)
+    const body = await readBody(event) as LX.ProviderParams
     const { source: musicSource, action, info: { musicInfo, type } } = body
     const songmid = getId(musicSource, musicInfo)
     logger.info("Request", action, musicSource, songmid)
@@ -26,7 +28,7 @@ export default eventHandler(async (event) => {
                     fs.access(path.join("file/music/", musicSource, String(songmid)))
                 )).error === null
             ) {
-                const url = UrlUtil.join(`http://${config.server.host}:${config.server.port}/`, "file/music", musicSource + "$" + songmid)
+                const url = uri.join(`http://${config.server.host}:${config.server.port}/`, "file/music", musicSource + "$" + songmid)
                 logger.info("Matched", url)
                 return {
                     state: "success",
@@ -48,18 +50,27 @@ export default eventHandler(async (event) => {
             if (musicSource === "local") throw createError({ statusCode: 404, statusMessage: "Local music not found" })
             logger.info("Fetch", musicSource, songmid)
             for (const source of sourceList) {
+                const a = Date.now() - await getTime(source.file)
+                if (a < 1000 * 20) continue
+                await setTime(source.file, Date.now())
+
                 logger.info("Fetch on", source.name)
                 try {
                     const url = await source.request(body)
-                    if (!url.startsWith("http")) throw Error("Invalid url")
+
+
+                    if (!url?.startsWith("http")) throw Error("Invalid url")
                     logger.info("Fetch", source.name, "success", url)
                     {(async ()=>{
-                        try { 
-                            const musicData = (await got.get(url)).rawBody
-                            await fs.writeFile(path.join("file/music/", musicSource, String(songmid)), musicData)
+                        try {
+                            // const musicData = (await got.get(url)).rawBody
+                            // await fs.writeFile(path.join("file/music/", musicSource, String(songmid)), musicData)
+                            // logger.info("Cached",  musicSource, songmid)
+                            const musicData = await fetch(url)
+                            await fs.writeFile(uri.join("file/music/", musicSource, String(songmid)), await musicData.bytes())
                             logger.info("Cached",  musicSource, songmid)
                         } catch (error) {
-                            logger.warn("Cached",  musicSource, songmid)
+                            logger.warn("Cached error",  musicSource, songmid)
                             logger.error(error)
                         }
                     })()}

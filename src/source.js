@@ -30,7 +30,8 @@ on(EVENT_NAMES.request, (event_data) => {
     })
 })
 
-const qualitys = ["128k" , "320k", "flac", "flac24bit"]
+// const qualitys = ["128k" , "320k", "flac", "flac24bit"]
+const qualitys = ["128k"]
 const actions = ["musicUrl"]
 send(EVENT_NAMES.inited, {
     openDevTools: import.meta.env.ENABLE_DEV_TOOLS,

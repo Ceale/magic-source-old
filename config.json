@@ -4,7 +4,7 @@
         "port": 23111
     },
     "source": {
-        "debug": true,
+        "debug": false,
         "name": "Magic Source (Dev)",
         "description": "变动の音楽源"
     }

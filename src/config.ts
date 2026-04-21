@@ -1,7 +1,7 @@
-import { UrlUtil } from "@ceale/util"
+import { uri } from "@ceale/util"
 import { readFile } from "fs/promises"
 
-export let config = null as {
+export let config = {} as {
     server: {
         host: string
         port: number
@@ -14,6 +14,6 @@ export let config = null as {
 }
 
 export const loadConfig = async () => {
-    // config = (await import(UrlUtil.join(process.cwd(), "config.json"), { with: { type: "json" }})).default
-    config = JSON.parse(await readFile(UrlUtil.join(process.cwd(), "config.json"), "utf8"))
+    // config = (await import(uri.join(process.cwd(), "config.json"), { with: { type: "json" }})).default
+    config = JSON.parse(await readFile(uri.join(process.cwd(), "config.json"), "utf8"))
 }

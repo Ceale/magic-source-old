@@ -5,7 +5,7 @@ import { router } from "@/router"
 import { loadConfig, config } from "@/config"
 import { loadAllSource, sourceList } from "@/service/source/manager"
 import { mkdir } from "node:fs/promises"
-import { UrlUtil } from "@ceale/util"
+import { uri } from "@ceale/util"
 import { logger } from "@/service/logger"
 
 await Promise.all([
@@ -50,4 +50,4 @@ await loadAllSource()
 app.use(router)
 createServer(toNodeListener(app)).listen(config.server.port)
 logger.info(`服务已启动于：http://${config.server.host}:${config.server.port}/`)
-logger.info(`音乐源地址：${UrlUtil.join(`http://${config.server.host}:${config.server.port}/`, "/api-source")}`)
+logger.info(`音乐源地址：${uri.join(`http://${config.server.host}:${config.server.port}/`, "/api-source")}`)
