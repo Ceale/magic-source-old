@@ -9,7 +9,8 @@
     "@types/node": "^22.19.17",
     "h3": "^1.15.11",
     "lx-source-type": "^2.0.6",
-    "lx-user-api-env": "^0.1.7"
+    "lx-user-api-env": "^0.1.7",
+    "winston": "^3.19.0"
   },
   "description": "通过代理其他lx-music-api等，来更好的缓存歌曲，并按照lx-music-api标准提供服务",
   "license": "MIT",

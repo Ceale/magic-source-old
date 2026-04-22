@@ -35,23 +35,25 @@ export default eventHandler(async (event) => {
                     url
                 }
             }
+            const serverUrl = "http://" + config.server.host + ":" + config.server.port + "/"
             switch (songmid) {
                 case "/storage/emulated/0/ 我的文件/義妹生活 OST/义妹生活OST1.mp3":
-                    return { url: config.server + "file/music/" + musicSource + "$gimaiseikatsuOST01.flac" }
+                    return { url: serverUrl + "file/music/" + musicSource + "$gimaiseikatsuOST01.flac" }
                 case "/storage/emulated/0/ 我的文件/義妹生活 OST/义妹生活OST2.wav":
-                    return { url: config.server + "file/music/" + musicSource + "$gimaiseikatsuOST02.flac" }
+                    return { url: serverUrl + "file/music/" + musicSource + "$gimaiseikatsuOST02.flac" }
                 case "/storage/emulated/0/ 我的文件/義妹生活 OST/义妹生活OST3.mp3":
-                    return { url: config.server + "file/music/" + musicSource + "$gimaiseikatsuOST03.flac" }
+                    return { url: serverUrl + "file/music/" + musicSource + "$gimaiseikatsuOST03.flac" }
                 case "/storage/emulated/0/ 我的文件/義妹生活 OST/义妹生活OST4.wav": 
-                    return { url: config.server + "file/music/" + musicSource + "$gimaiseikatsuEP04.flac" }
+                    return { url: serverUrl + "file/music/" + musicSource + "$gimaiseikatsuEP04.flac" }
                 case "D:\\Music\\Be What You Wanna Be.mp3":
-                    return { url: config.server + "file/music/" + musicSource + "$BeWhatYouWannaBe.mp3" }
+                    return { url: serverUrl + "file/music/" + musicSource + "$BeWhatYouWannaBe.mp3" }
             }
             if (musicSource === "local") throw createError({ statusCode: 404, statusMessage: "Local music not found" })
             logger.info("Fetch", musicSource, songmid)
             for (const source of sourceList) {
                 const a = Date.now() - await getTime(source.file)
-                if (a < 1000 * 20) continue
+                if (a < 1000 * config.server.gap) continue
+
                 await setTime(source.file, Date.now())
 
                 logger.info("Fetch on", source.name)

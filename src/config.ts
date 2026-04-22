@@ -5,6 +5,7 @@ export let config = {} as {
     server: {
         host: string
         port: number
+        gap: number
     }
     source: {
         debug: boolean
