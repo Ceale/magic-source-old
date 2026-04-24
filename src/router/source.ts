@@ -1,5 +1,5 @@
 import { getId } from "@/util/music"
-import { createError, eventHandler, readBody } from "h3"
+import { createError, eventHandler, getHeader, getRequestProtocol, readBody } from "h3"
 import * as music from "@/util/music"
 import got from 'got'
 import crypto from "crypto"
@@ -16,6 +16,7 @@ import { getTime, setTime } from "@/service/source/meta"
 // 限速，同一首歌，1小时内，请求失败不能超过2次，超出直接失败
 
 export default eventHandler(async (event) => {
+    const serverUrl = getRequestProtocol(event) + "://" + getHeader(event, "Host") + "/"
     const body = await readBody(event) as LX.ProviderParams
     const { source: musicSource, action, info: { musicInfo, type } } = body
     const songmid = getId(musicSource, musicInfo)
@@ -28,14 +29,13 @@ export default eventHandler(async (event) => {
                     fs.access(path.join("file/music/", musicSource, String(songmid)))
                 )).error === null
             ) {
-                const url = uri.join(`http://${config.server.host}:${config.server.port}/`, "file/music", musicSource + "$" + songmid)
+                const url = uri.join(serverUrl, "file/music", musicSource + "$" + songmid)
                 logger.info("Matched", url)
                 return {
                     state: "success",
                     url
                 }
             }
-            const serverUrl = "http://" + config.server.host + ":" + config.server.port + "/"
             switch (songmid) {
                 case "/storage/emulated/0/ 我的文件/義妹生活 OST/义妹生活OST1.mp3":
                     return { url: serverUrl + "file/music/" + musicSource + "$gimaiseikatsuOST01.flac" }
@@ -92,9 +92,9 @@ export default eventHandler(async (event) => {
                 case "/storage/emulated/0/ 我的文件/義妹生活 OST/义妹生活OST1.mp3":
                 case "/storage/emulated/0/ 我的文件/義妹生活 OST/义妹生活OST2.wav":
                 case "/storage/emulated/0/ 我的文件/義妹生活 OST/义妹生活OST3.mp3":
-                    return { url: config.server + "file/cover/gimaiseikatsuOST01.png" }
+                    return { url: serverUrl + "file/cover/gimaiseikatsuOST01.png" }
                 case "/storage/emulated/0/ 我的文件/義妹生活 OST/义妹生活OST4.wav": 
-                    return { url: config.server + "file/cover/gimaiseikatsuEP04.png" }
+                    return { url: serverUrl + "file/cover/gimaiseikatsuEP04.png" }
             }
         }
         case "lyric": {
