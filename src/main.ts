@@ -42,6 +42,7 @@ const app = createApp({
                 statusText = message = statusText ?? "Server Internal Error"
         }
         await sendWebResponse(event, new Response(message, { status: error.statusCode, statusText }))
+        throw error
     }
 })
 
